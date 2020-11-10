@@ -1,4 +1,4 @@
-function Get-ClusterV2 {   
+function Get-ClustersV2 {   
 <#
 .SYNOPSIS
 Dynamically Generated API Function
