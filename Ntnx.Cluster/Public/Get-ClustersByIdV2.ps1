@@ -1,4 +1,4 @@
-function Get-ClustersV2 {   
+function Get-ClustersByIdV2 {   
 <#
 .SYNOPSIS
 Dynamically Generated API Function
@@ -24,21 +24,18 @@ Please be aware that all code samples provided here are unofficial in nature, ar
         [PSCredential]
         $Credential,
 
+        [Parameter(Mandatory=$true)]
+        [string]
+        $ClusterId,
+
+        [Parameter(Mandatory=$false)]
+        #[ValidateSet()]
+        [string]
+        $Projection,
+
         # Body Parameter1
         #[Parameter()]
         #$BodyParam1,
-    <#
-        {
-            "type": "object",
-            "properties": {
-              "projection": {
-                "type": "string",
-                "description": "Projections on the attributes"
-              }
-            },
-            "required": []
-          }
-    #>
 
         [Parameter(Mandatory=$false)]
         [switch]
@@ -60,10 +57,14 @@ Please be aware that all code samples provided here are unofficial in nature, ar
 
     process {
         $body = [Hashtable]::new()
-        #$body.add("BodyParam1",$BodyParam1)
+
+        if($null -ne $Projection){
+            $body.add("projection",$Projection)
+        }
+        
 
         $iwrArgs = @{
-            Uri = "https://$($ComputerName):$($Port)/PrismGateway/services/rest/v2.0/clusters"
+            Uri = "https://$($ComputerName):$($Port)/PrismGateway/services/rest/v2.0/clusters/$ClusterId"
             Method = "get"
             ContentType = "application/json"
             ErrorVariable = "iwrError"
@@ -88,11 +89,11 @@ Please be aware that all code samples provided here are unofficial in nature, ar
         }
         
         try{
-            $response = Invoke-WebRequest @iwrArgs 
+            $response = Invoke-WebRequest @iwrArgs
 
             if($response.StatusCode -in 200..204){
                 $content = $response.Content | ConvertFrom-Json
-
+                <#
                 if($ShowMetadata){
                     if($null -ne $content.metadata){
                         $content.metadata    
@@ -102,13 +103,15 @@ Please be aware that all code samples provided here are unofficial in nature, ar
                     }
                 }
                 else{
-                    if($null -eq $Content.Entities){
+                    if($null -eq $Content.Entities -or $content.entities -eq ''){
                         $content
                     }
                     else{
                         $content.Entities
                     }
                 }
+                #>
+                $content
             }
             elseif($response.StatusCode -eq 401){
                 Write-Verbose -Message "Credential used not authorized, exiting..."

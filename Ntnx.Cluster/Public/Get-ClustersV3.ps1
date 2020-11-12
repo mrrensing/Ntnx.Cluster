@@ -19,6 +19,17 @@ Please be aware that all code samples provided here are unofficial in nature, ar
         [string]
         $ComputerName,
 
+        # Prism UI Credential to invoke call
+        [Parameter(Mandatory=$true)]
+        [PSCredential]
+        $Credential,
+
+        [Parameter(Mandatory=$false)]
+        [Parameter(ParameterSetName="SingleCluster")]
+        [AllowEmptyString]
+        [string]
+        $ClusterUuid,
+
         # Port (Default is 9440)
         [Parameter(Mandatory=$false)]
         [int16]
@@ -26,22 +37,19 @@ Please be aware that all code samples provided here are unofficial in nature, ar
 
         [Parameter(Mandatory=$false)]
         [switch]
-        $ShowMetadata,
+        $ShowMetadata
 
         # Body Parameter1
         #[Parameter()]
-        #$BodyParam1,
-
-        # Prism UI Credential to invoke call
-        [Parameter(Mandatory=$true)]
-        [PSCredential]
-        $Credential
+        #$BodyParam1
     )
 
     process {
         $body = @{
             kind = "cluster"
         }
+
+        #if($PSBoundParameters.)
 
         $iwrArgs = @{
             Uri = "https://$($ComputerName):$($Port)/api/nutanix/v3/clusters/list"

@@ -1,4 +1,4 @@
-function Get-ClustersV2 {   
+function Get-ClusterDomainFaultToleranceStatusV1 {   
 <#
 .SYNOPSIS
 Dynamically Generated API Function
@@ -24,21 +24,16 @@ Please be aware that all code samples provided here are unofficial in nature, ar
         [PSCredential]
         $Credential,
 
-        # Body Parameter1
-        #[Parameter()]
-        #$BodyParam1,
-    <#
-        {
-            "type": "object",
-            "properties": {
-              "projection": {
-                "type": "string",
-                "description": "Projections on the attributes"
-              }
-            },
-            "required": []
-          }
-    #>
+        # Domain Fault Type 
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("RACK","RACKABLE_UNIT","NODE","DISK")]
+        [string]
+        $DomainType,
+
+        # Simplified Output
+        [Parameter(Mandatory=$false)]
+        [switch]
+        $SimpleOutput,
 
         [Parameter(Mandatory=$false)]
         [switch]
@@ -63,10 +58,15 @@ Please be aware that all code samples provided here are unofficial in nature, ar
         #$body.add("BodyParam1",$BodyParam1)
 
         $iwrArgs = @{
-            Uri = "https://$($ComputerName):$($Port)/PrismGateway/services/rest/v2.0/clusters"
-            Method = "get"
+            Uri = "https://$($ComputerName):$($Port)/PrismGateway/services/rest/v1/cluster/domain_fault_tolerance_status"
+            Method = "GET"
             ContentType = "application/json"
             ErrorVariable = "iwrError"
+        }
+
+        if($DomainType){
+            Write-Verbose -Message "FaultType is not NULL and will be checked for $DomainType"
+            $iwrArgs.uri += "/"+$DomainType
         }
 
         if($body.count -ge 1){
@@ -88,26 +88,24 @@ Please be aware that all code samples provided here are unofficial in nature, ar
         }
         
         try{
-            $response = Invoke-WebRequest @iwrArgs 
+            $response = Invoke-WebRequest @iwrArgs
 
             if($response.StatusCode -in 200..204){
                 $content = $response.Content | ConvertFrom-Json
 
-                if($ShowMetadata){
-                    if($null -ne $content.metadata){
-                        $content.metadata    
+                if($SimpleOutput){
+                    $responseAlt = foreach($r in $content){
+                        $propList = $r.componentFaultToleranceStatus.psobject.properties.name
+                        foreach($p in $propList){
+                            $r.componentFaultToleranceStatus.$p | Add-Member -NotePropertyName "DomainType" -NotePropertyValue $r.domainType
+                            $r.componentFaultToleranceStatus.$p | Add-Member -NotePropertyName "ComputerName" -NotePropertyValue $c
+                            $r.componentFaultToleranceStatus.$p
+                        }
                     }
-                    else{
-                        Write-Output "No Metadata Found"
-                    }
+                    Write-Output $responseAlt
                 }
                 else{
-                    if($null -eq $Content.Entities){
-                        $content
-                    }
-                    else{
-                        $content.Entities
-                    }
+                    Write-Output $content
                 }
             }
             elseif($response.StatusCode -eq 401){
