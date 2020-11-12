@@ -98,7 +98,7 @@ Please be aware that all code samples provided here are unofficial in nature, ar
                         $propList = $r.componentFaultToleranceStatus.psobject.properties.name
                         foreach($p in $propList){
                             $r.componentFaultToleranceStatus.$p | Add-Member -NotePropertyName "DomainType" -NotePropertyValue $r.domainType
-                            $r.componentFaultToleranceStatus.$p | Add-Member -NotePropertyName "ComputerName" -NotePropertyValue $c
+                            $r.componentFaultToleranceStatus.$p | Add-Member -NotePropertyName "ComputerName" -NotePropertyValue $ComputerName
                             $r.componentFaultToleranceStatus.$p
                         }
                     }

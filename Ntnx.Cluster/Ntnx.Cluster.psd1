@@ -12,7 +12,7 @@
 RootModule = 'Ntnx.Cluster.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1.25'
+ModuleVersion = '0.0.1.26'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core', 'Desktop'
