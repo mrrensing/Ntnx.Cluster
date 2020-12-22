@@ -37,11 +37,11 @@ Please be aware that all code samples provided here are unofficial in nature, ar
 
         [Parameter(Mandatory=$false)]
         [switch]
-        $ShowMetadata
+        $ShowMetadata,
 
-        # Body Parameter1
-        #[Parameter()]
-        #$BodyParam1
+        [Parameter(Mandatory=$false)]
+        [switch]
+        $SkipCertificateCheck
     )
 
     process {
@@ -67,8 +67,12 @@ Please be aware that all code samples provided here are unofficial in nature, ar
         else{
             $iwrArgs.add("Authentication","Basic")
             $iwrArgs.add("Credential",$Credential)
-            $iwrArgs.add("SkipCertificateCheck",$null)
+            $iwrArgs.add("SkipCertificateCheck",$false)
             $iwrArgs.add("SslProtocol","Tls12")
+        }
+
+        if($SkipCertificateCheck){
+            $iwrArgs.SkipCertificateCheck = $true
         }
         
         $response = Invoke-WebRequest @iwrArgs
